@@ -46,6 +46,10 @@
             <HintPath>$(VALHEIM_MANAGED)/UnityEngine.CoreModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule">
+            <HintPath>$(VALHEIM_MANAGED)/UnityEngine.UnityWebRequestModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="UnityEngine.UI">
             <HintPath>$(VALHEIM_MANAGED)/UnityEngine.UI.dll</HintPath>
             <Private>false</Private>
@@ -104,6 +108,10 @@
         </Reference>
         <Reference Include="SoftReferenceableAssets">
             <HintPath>$(PUBLICIZED_PATH)/SoftReferenceableAssets_publicized.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="gui_framework">
+            <HintPath>$(PUBLICIZED_PATH)/gui_framework_publicized.dll</HintPath>
             <Private>false</Private>
         </Reference>
     </ItemGroup>

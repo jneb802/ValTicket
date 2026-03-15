@@ -28,4 +28,8 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="JotunnLib" Version="2.25.0" />
+  </ItemGroup>
+
 </Project>
