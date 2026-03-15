@@ -47,22 +47,29 @@ export async function handleSetup(
   const forumChannel = forum as ForumChannel;
   const existingTags = forumChannel.availableTags;
   const existingNames = new Set(existingTags.map((t) => t.name.toLowerCase()));
+  let tagWarning = '';
 
   const missingTags = REQUIRED_TAGS.filter(
     (t) => !existingNames.has(t.name.toLowerCase())
   );
 
   if (missingTags.length > 0) {
-    const updatedTags = [
-      ...existingTags.map((t) => ({
-        id: t.id,
-        name: t.name,
-        moderated: t.moderated,
-        emoji: t.emoji,
-      })),
-      ...missingTags,
-    ];
-    await forumChannel.setAvailableTags(updatedTags);
+    try {
+      const updatedTags = [
+        ...existingTags.map((t) => ({
+          id: t.id,
+          name: t.name,
+          moderated: t.moderated,
+          emoji: t.emoji,
+        })),
+        ...missingTags,
+      ];
+      await forumChannel.setAvailableTags(updatedTags);
+    } catch (error) {
+      console.error('Failed to set forum tags (bot may need Manage Channel permission):', error);
+      tagWarning = 'Could not create forum tags automatically — please create them manually ' +
+        '(Bug, Suggestion, Question, Open, In Progress, Resolved) or grant the bot Manage Channel permission.';
+    }
   }
 
   // Send the ticket button message
@@ -92,9 +99,11 @@ export async function handleSetup(
     components: [row],
   });
 
-  const tagStatus = missingTags.length > 0
-    ? `Created ${missingTags.length} missing tag(s): ${missingTags.map((t) => t.name).join(', ')}`
-    : 'All forum tags already exist';
+  const tagStatus = tagWarning
+    ? tagWarning
+    : missingTags.length > 0
+      ? `Created ${missingTags.length} missing tag(s): ${missingTags.map((t) => t.name).join(', ')}`
+      : 'All forum tags already exist';
 
   await interaction.editReply(`Ticket system set up. ${tagStatus}`);
 }
