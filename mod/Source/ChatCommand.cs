@@ -6,14 +6,32 @@ namespace ValTicket
     [HarmonyPatch(typeof(Chat), nameof(Chat.InputText))]
     public static class ChatCommand
     {
-        private static readonly string[] ValidCategories = { "bug", "suggestion", "question" };
-
         static bool Prefix(Chat __instance)
         {
             var text = __instance.m_input.text.Trim();
 
-            if (!text.StartsWith("/ticket", StringComparison.OrdinalIgnoreCase))
+            // Determine command and category
+            string category;
+            string commandPrefix;
+
+            if (text.StartsWith("/bug", StringComparison.OrdinalIgnoreCase))
+            {
+                category = "bug";
+                commandPrefix = "/bug";
+            }
+            else if (text.StartsWith("/suggest", StringComparison.OrdinalIgnoreCase))
+            {
+                category = "suggestion";
+                commandPrefix = "/suggest";
+            }
+            else
+            {
                 return true; // Not our command, let the original method run
+            }
+
+            // Word boundary check: next char must be space or end-of-string
+            if (text.Length > commandPrefix.Length && text[commandPrefix.Length] != ' ')
+                return true;
 
             if (!ValTicketPlugin.Enabled.Value)
             {
@@ -27,66 +45,35 @@ namespace ValTicket
                 return false;
             }
 
-            // Parse: /ticket [category] title - description
-            var args = text.Substring("/ticket".Length).Trim();
+            var args = text.Substring(commandPrefix.Length).Trim();
 
             if (string.IsNullOrEmpty(args))
             {
-                AddChatMessage("Usage: /ticket <bug|suggestion|question> <title> - <description>");
-                AddChatMessage("Example: /ticket bug Mobs clipping - Greydwarves walk through walls");
-                return false;
-            }
-
-            // Try to extract category
-            string category = "bug";
-            string remainder = args;
-
-            var firstSpace = args.IndexOf(' ');
-            if (firstSpace > 0)
-            {
-                var potentialCategory = args.Substring(0, firstSpace).ToLower();
-                if (Array.IndexOf(ValidCategories, potentialCategory) >= 0)
-                {
-                    category = potentialCategory;
-                    remainder = args.Substring(firstSpace + 1).Trim();
-                }
-            }
-            else
-            {
-                // Single word after /ticket — check if it's just a category with no content
-                var singleWord = args.ToLower();
-                if (Array.IndexOf(ValidCategories, singleWord) >= 0)
-                {
-                    AddChatMessage("Please provide a title. Example: /ticket bug Mobs clipping - Description here");
-                    return false;
-                }
-                // Otherwise treat the single word as the title
-            }
-
-            if (string.IsNullOrEmpty(remainder))
-            {
-                AddChatMessage("Please provide a title. Example: /ticket bug Mobs clipping - Description here");
+                AddChatMessage($"Usage: {commandPrefix} <title> - <description>");
+                AddChatMessage(category == "bug"
+                    ? "Example: /bug Mobs clipping - Greydwarves walk through walls"
+                    : "Example: /suggest New biome - Add a volcanic biome with fire enemies");
                 return false;
             }
 
             // Split on " - " for title/description
             string title;
             string description;
-            var dashIndex = remainder.IndexOf(" - ", StringComparison.Ordinal);
+            var dashIndex = args.IndexOf(" - ", StringComparison.Ordinal);
             if (dashIndex >= 0)
             {
-                title = remainder.Substring(0, dashIndex).Trim();
-                description = remainder.Substring(dashIndex + 3).Trim();
+                title = args.Substring(0, dashIndex).Trim();
+                description = args.Substring(dashIndex + 3).Trim();
             }
             else
             {
-                title = remainder;
-                description = remainder;
+                title = args;
+                description = args;
             }
 
             if (string.IsNullOrEmpty(title))
             {
-                AddChatMessage("Please provide a title. Example: /ticket bug Mobs clipping - Description here");
+                AddChatMessage($"Usage: {commandPrefix} <title> - <description>");
                 return false;
             }
 

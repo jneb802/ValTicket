@@ -13,8 +13,10 @@ namespace ValTicket
             {
                 var diag = Diagnostics.Collect();
 
-                // Read full player LogOutput.log
-                byte[] compressedLog = ReadAndCompressLog();
+                // Only include logs for bug reports
+                byte[] compressedLog = category == "bug"
+                    ? ReadAndCompressLog()
+                    : Array.Empty<byte>();
 
                 // Build ZPackage with all fields
                 var package = new ZPackage();

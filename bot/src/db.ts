@@ -59,7 +59,7 @@ export function createTicketRecord(data: {
   username: string;
   category: string;
   title: string;
-  source: 'discord' | 'mod';
+  source: 'mod';
 }): void {
   insertStmt.run(data);
 }

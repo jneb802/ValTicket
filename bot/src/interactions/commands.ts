@@ -1,10 +1,6 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ForumChannel,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -15,7 +11,6 @@ import { closeTicketRecord, getTicketByThread } from '../db.js';
 const REQUIRED_TAGS = [
   { name: 'Bug', moderated: false, emoji: { name: '\uD83D\uDC1B', id: null } },
   { name: 'Suggestion', moderated: false, emoji: { name: '\uD83D\uDCA1', id: null } },
-  { name: 'Question', moderated: false, emoji: { name: '\u2753', id: null } },
   { name: 'Open', moderated: true, emoji: { name: '\uD83D\uDFE2', id: null } },
   { name: 'In Progress', moderated: true, emoji: { name: '\uD83D\uDFE1', id: null } },
   { name: 'Resolved', moderated: true, emoji: { name: '\u2705', id: null } },
@@ -68,36 +63,9 @@ export async function handleSetup(
     } catch (error) {
       console.error('Failed to set forum tags (bot may need Manage Channel permission):', error);
       tagWarning = 'Could not create forum tags automatically — please create them manually ' +
-        '(Bug, Suggestion, Question, Open, In Progress, Resolved) or grant the bot Manage Channel permission.';
+        '(Bug, Suggestion, Open, In Progress, Resolved) or grant the bot Manage Channel permission.';
     }
   }
-
-  // Send the ticket button message
-  const embed = new EmbedBuilder()
-    .setTitle('Praetoris Support')
-    .setDescription(
-      'Need help or want to report an issue? Click the button below to create a support ticket.\n\n' +
-      'Your ticket will be posted as a public thread so others can benefit from the answers.'
-    )
-    .setColor(0x5865f2);
-
-  const button = new ButtonBuilder()
-    .setCustomId('open-ticket')
-    .setLabel('Open a Ticket')
-    .setStyle(ButtonStyle.Primary);
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-
-  const channel = interaction.channel;
-  if (!channel || !('send' in channel)) {
-    await interaction.editReply('Cannot send messages in this channel.');
-    return;
-  }
-
-  await channel.send({
-    embeds: [embed],
-    components: [row],
-  });
 
   const tagStatus = tagWarning
     ? tagWarning

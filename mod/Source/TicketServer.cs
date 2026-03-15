@@ -31,11 +31,9 @@ namespace ValTicket
 
             ValTicketPlugin.Log.LogInfo($"Received ticket from {playerName}: [{category}] {title}");
 
-            // Decompress player log
-            byte[] playerLogBytes = Decompress(compressedPlayerLog);
-
-            // Read server's own log
-            byte[] serverLogBytes = ReadServerLog();
+            // Only process logs for bug reports
+            byte[] playerLogBytes = category == "bug" ? Decompress(compressedPlayerLog) : Array.Empty<byte>();
+            byte[] serverLogBytes = category == "bug" ? ReadServerLog() : Array.Empty<byte>();
 
             // POST to the bot API
             yield return PostTicket(

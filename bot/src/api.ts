@@ -45,7 +45,7 @@ export function createApi(client: Client): express.Express {
           return;
         }
 
-        const validCategories = ['bug', 'suggestion', 'question'];
+        const validCategories = ['bug', 'suggestion'];
         if (!validCategories.includes(category)) {
           res.status(400).json({
             success: false,

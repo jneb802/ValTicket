@@ -14,7 +14,7 @@ export interface TicketData {
   description: string;
   userId: string;
   username: string;
-  source: 'discord' | 'mod';
+  source: 'mod';
   // Mod-specific diagnostic fields
   player?: string;
   world?: string;
@@ -29,7 +29,6 @@ export interface TicketData {
 const CATEGORY_PREFIXES: Record<string, string> = {
   bug: 'BUG',
   suggestion: 'SUGGESTION',
-  question: 'QUESTION',
 };
 
 export async function createTicket(
@@ -57,17 +56,10 @@ export async function createTicket(
   const embed = new EmbedBuilder()
     .setTitle(`${data.title}`)
     .setDescription(data.description)
-    .setColor(
-      data.category === 'bug'
-        ? 0xe74c3c
-        : data.category === 'suggestion'
-          ? 0x3498db
-          : 0x2ecc71
-    )
+    .setColor(data.category === 'bug' ? 0xe74c3c : 0x3498db)
     .addFields(
       { name: 'Category', value: data.category, inline: true },
-      { name: 'Submitted by', value: data.username, inline: true },
-      { name: 'Source', value: data.source, inline: true }
+      { name: 'Submitted by', value: data.username, inline: true }
     )
     .setTimestamp();
 
